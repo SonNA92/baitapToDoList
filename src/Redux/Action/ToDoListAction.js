@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ADD_TASK, DEL_TASK, EDIT_TASK, SET_TASK } from './Types';
+import { ADD_TASK, DEL_TASK, EDIT_TASK, SET_TASK, UPDATE_TASK } from './Types';
 
 
 
@@ -40,7 +40,8 @@ export const addTaskAction = (taskName) => {
             dispatch(action);
 
         }catch (err) {
-            console.log(err.response?.data)
+            console.log(err.response?.data);
+            alert('Taskname không được trùng tên ');
         }
     }
 }
@@ -94,9 +95,3 @@ export const rejectTaskAction = (taskName) => {
     }
 }
 
-export const editTaskAction = (task) => {
-    return {
-        type:EDIT_TASK,
-        task:task
-    }
-}

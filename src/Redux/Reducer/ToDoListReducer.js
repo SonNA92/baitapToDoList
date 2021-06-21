@@ -1,12 +1,11 @@
 import { DarkTheme } from "../../Themes/DarkTheme";
 import { LightTheme } from "../../Themes/LightTheme";
 import { arrTheme } from "../../Themes/ThemeManager";
-import { ADD_TASK, CHANGE_THEME, EDIT_TASK, SET_TASK } from "../Action/Types";
+import { ADD_TASK, CHANGE_THEME, EDIT_TASK, SET_TASK, UPDATE_TASK } from "../Action/Types";
 
 const initialState = {
     themeSelect: DarkTheme,
     taskList:[],
-    taskEdit:''
 
 }
 
@@ -29,9 +28,8 @@ export const ToDoListReducer = (state = initialState, action) => {
             state.taskList = [...state.taskList,action.dataTask];
             return {...state}
         }
-        case EDIT_TASK: {
-            return {...state,taskEdit:action.task}
-        }
+        
+
     default:
         return {...state}
     }

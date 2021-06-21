@@ -11,20 +11,17 @@ import { Table, Th, Thead, Tr, Td } from '../../Components/ComponentChild/Table'
 import { useDispatch, useSelector } from 'react-redux';
 import { arrTheme } from '../../Themes/ThemeManager';
 import { CHANGE_THEME } from '../../Redux/Action/Types';
-import {useFormik} from 'formik';
+import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { addTaskAction, delTaskAction, doneTaskAction, editTaskAction, getTaskListAction, rejectTaskAction } from '../../Redux/Action/ToDoListAction';
+import { addTaskAction, delTaskAction, doneTaskAction, getTaskListAction, rejectTaskAction } from '../../Redux/Action/ToDoListAction';
 
 
 
 
 export default function ToDoList(props) {
 
-    const [taskName,setTaskName] = useState({
-        taskName:''
-    });
     const dispatch = useDispatch();
-    const { themeSelect, taskList, taskEdit } = useSelector(state => state.ToDoListReducer);
+    const { themeSelect, taskList} = useSelector(state => state.ToDoListReducer);
 
     // render Theme 
     const renderTheme = () => {
@@ -32,33 +29,30 @@ export default function ToDoList(props) {
             return <option key={index} value={theme.id}>{theme.name}</option>
         })
     }
-    // Set value khi click Edit
-    useEffect(()=>{
-       setTaskName({
-           taskName:taskEdit.taskName
-       })
-    },[taskEdit])
 
+    // Kiem tra Taskname
     const formik = useFormik({
-        initialValues:{
-            taskName:''
+        initialValues: {
+            taskName: ''
         },
-        validationSchema:Yup.object().shape({
-            taskName:Yup.string().required('taskName không được bỏ trống')
+        validationSchema: Yup.object().shape({
+            taskName: Yup.string().required('taskName không được bỏ trống')
         }),
-        onSubmit:(values) => {
-            // dua value len API
-            dispatch(addTaskAction(values));
+        onSubmit: (values) => {
+            if (values.taskName !== '') {
+                // dua value len API
+                dispatch(addTaskAction(values));
+            } else {
+                alert('Taskname không được bỏ trống! ');
+            }
         },
-        
-
     })
 
     // getTaskList
-    useEffect(()=>{
+    useEffect(() => {
         dispatch(getTaskListAction());
 
-    },[])
+    }, [])
 
     // render Task to do
     const renderTaskToDo = () => {
@@ -66,13 +60,10 @@ export default function ToDoList(props) {
             return <Tr key={index}>
                 <Th className="width:70%">{task.taskName}</Th>
                 <Th className="text-right">
-                    <Button type="button" onClick={()=>{
-                        editTask(task);
-                    }}><i className="fa fa-edit"></i></Button>
-                    <Button type="button" onClick={()=>{
+                    <Button type="button" onClick={() => {
                         checkTask(task.taskName);
                     }}><i className="fa fa-check"></i></Button>
-                    <Button type="button" onClick={()=>{
+                    <Button type="button" onClick={() => {
                         delTask(task.taskName);
                     }}><i className="fa fa-trash"></i></Button>
                 </Th>
@@ -86,10 +77,10 @@ export default function ToDoList(props) {
             return <Tr key={index}>
                 <Th className="width:70%">{task.taskName}</Th>
                 <Th className="text-right">
-                    <Button type="button" onClick={()=>{
-                       delTask(task.taskName);
+                    <Button type="button" onClick={() => {
+                        delTask(task.taskName);
                     }}><i className="fa fa-trash"></i></Button>
-                    <Button type="button" onClick={()=>{
+                    <Button type="button" onClick={() => {
                         rejectTask(task.taskName);
                     }}><i className="fa fa-undo"></i></Button>
                 </Th>
@@ -98,7 +89,7 @@ export default function ToDoList(props) {
     }
 
     // Ham xu li DelTask
-    const delTask = (taskName) =>{
+    const delTask = (taskName) => {
         dispatch(delTaskAction(taskName));
     }
 
@@ -112,49 +103,44 @@ export default function ToDoList(props) {
         dispatch(rejectTaskAction(taskName));
     }
 
-    // Ham xu li EditTask
-    const editTask = (task) => {
-        dispatch(editTaskAction(task));
-    }
-   
-
     // Render HTML
     return (
-        <ThemeProvider theme={themeSelect}>
-            <Container style={{ width: '550px' }}>
-                <form onSubmit={formik.handleSubmit}>
-                    <Dropdown onChange={(e) => {
-                        let { value } = e.target;
-                        //dispatch value len reducer
-                        dispatch({
-                            type: CHANGE_THEME,
-                            themeId: value
-                        })
-                    }}>
-                        {renderTheme()}
-                    </Dropdown>
-                    <Heading2>To Do List</Heading2>
-                    <TextField lable="Task name" name="taskName" value={taskName.taskName} className="w-50" onChange={formik.handleChange} onBlur={formik.handleBlur}></TextField>
-                    
-                    <Button type="submit" className="ml-2"><i className="fa fa-plus"></i> Add Task</Button>
+        <div style={{paddingBottom:'300px',background:'url(./img/anhnen.jpg)'}}>
+            <ThemeProvider theme={themeSelect}>
+                <Container style={{ width: '500px' }}>
+                    <form onSubmit={formik.handleSubmit}>
+                        <Dropdown onChange={(e) => {
+                            let { value } = e.target;
+                            //dispatch value len reducer
+                            dispatch({
+                                type: CHANGE_THEME, 
+                                themeId: value
+                            })
+                        }}>
+                            {renderTheme()}
+                        </Dropdown>
+                        <Heading2>To Do List</Heading2>
+                        <TextField lable="Task name" name="taskName" className="w-50" onChange={formik.handleChange} onBlur={formik.handleBlur} ></TextField>
 
-                    <Button className="ml-2"><i className="fa fa-upload"></i> Update Task</Button>
-                    {formik.errors.taskName && formik.touched.taskName && <p className="text text-danger">{formik.errors.taskName}</p>}
-                    <hr />
-                    <Heading3>Task to do</Heading3>
-                    <Table>
-                        <Thead>
-                            {renderTaskToDo()}
-                        </Thead>
-                    </Table>
-                    <Heading3>Task Complete</Heading3>
-                    <Table>
-                        <Thead>
-                            {renderTaskComplete()}
-                        </Thead>
-                    </Table>
-                </form>
-            </Container>
-        </ThemeProvider>
+                        <Button type="submit" className="ml-2"><i className="fa fa-plus"></i> Add Task</Button>
+
+                        {formik.errors.taskName && formik.touched.taskName && <p className="text text-danger">{formik.errors.taskName}</p>}
+                        <hr />
+                        <Heading3>Task to do</Heading3>
+                        <Table>
+                            <Thead>
+                                {renderTaskToDo()}
+                            </Thead>
+                        </Table>
+                        <Heading3>Task Complete</Heading3>
+                        <Table>
+                            <Thead>
+                                {renderTaskComplete()}
+                            </Thead>
+                        </Table>
+                    </form>
+                </Container>
+            </ThemeProvider>
+        </div>
     )
 }
